@@ -16,6 +16,7 @@
 //This script is based on Google's sample so I'm leaving the above licensing.
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(Collider))]
@@ -26,9 +27,18 @@ public class ObjectGaze : MonoBehaviour
     private float autoConfirmationTime;
     private bool waitingConfirmationFlag;
 
+    private GameObject exclamationMark, exclamationMarkInstance;
+    private Vector3 deltaPos;
+    private Quaternion markQuarternion;
     void Start()
     {
+        markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
+        deltaPos.x = startingPosition.x;
+        deltaPos.y = startingPosition.y + 0.12f;
+        deltaPos.z = startingPosition.z;
+        exclamationMark = (GameObject)Resources.Load("Prefab/ExclamationMark");
+        exclamationMark.transform.localPosition = deltaPos;
         waitingConfirmationFlag = false;
         autoConfirmationTime = 2.0f;
         SetGazedAt(false);
@@ -42,6 +52,8 @@ public class ObjectGaze : MonoBehaviour
             if (autoConfirmationTime < 0)
             {
                 print("Selected by gazing more than 2 seconds");
+                //Selected, go to the Hospital scene
+                SceneManager.LoadScene("Hospital");
                 waitingConfirmationFlag = false;
                 autoConfirmationTime = 2.0f;
             }
@@ -56,15 +68,18 @@ public class ObjectGaze : MonoBehaviour
 
     public void SetGazedAt(bool gazedAt)
     {
-        GetComponent<Renderer>().material.color = gazedAt ? Color.green : Color.red;
+        //GetComponent<Renderer>().material.color = gazedAt ? Color.green : Color.red;
 
         if (gazedAt)
         {
+            exclamationMarkInstance = GameObject.Instantiate(exclamationMark, exclamationMark.transform.localPosition, markQuarternion) as GameObject;
+            exclamationMarkInstance.name = "exclamationMarkInstance";
             waitingConfirmationFlag = true;
         }
         else
         {
             waitingConfirmationFlag = false;
+            Destroy(GameObject.Find("exclamationMarkInstance"));
             autoConfirmationTime = 2.0f;
         }
     }
