@@ -1,14 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CameraMovement : MonoBehaviour {
-    private float speed;
 
+public class CameraMovement : MonoBehaviour {
+    /*
+    Attach this script to the CardboardMain in the scene to enable moving the CardboardMain object
+    which is the user's body, from other scripts
+    */
     private Transform cachedTransform;
 
     // a tweakable value for the time a turn should take
-    public float RotationSeconds = 0.7f;
+    private float RotationSeconds = 0.2f;//w.r.t all axes
 
+    //parameters to let the player walk
+    private float walkingSpeed = 0.03f; //walking speed in all directions, take care that on scenes with different scales the speed needed may vary.
+    private Vector3 walkingDirection;
+
+  
     // the current interpolation t - will move from 0 to 1
     // as the interpolation proceeds
     private float rotationT;
@@ -19,19 +27,51 @@ public class CameraMovement : MonoBehaviour {
 
     // true when rotating
     private bool isRotating;
+    private bool moveFlag;
+    private CardboardHead cardboardHead;
+
+
     // Use this for initialization
     void Start () {
-        speed = 30.0f;
+        moveFlag = false;
         cachedTransform = transform;
+        walkingDirection = new Vector3(0, 0, 0);
+        cardboardHead = Camera.main.GetComponent<StereoController>().Head;
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (Input.GetKey(KeyCode.A))
-            transform.Rotate(Vector3.up * speed * Time.deltaTime);
 
-        if (Input.GetKey(KeyCode.D))
-            transform.Rotate(-Vector3.up * speed * Time.deltaTime);
+    // Update is called once per frame
+       
+    void Update () {
+
+        //check collider to see if we bumped into anything
+
+
+        if (Input.GetKey(KeyCode.A)) {
+            //Disable strafing left for now
+            //transform.localPosition += walkingSpeed * (Quaternion.Euler(0, -90, 0) * cardboardHead.transform.forward);
+        }
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            walkingDirection.x = transform.localPosition.x + (walkingSpeed * cardboardHead.transform.forward.x);
+            walkingDirection.y = transform.localPosition.y + 0;
+            walkingDirection.z = transform.localPosition.z + (walkingSpeed * cardboardHead.transform.forward.z);
+            transform.localPosition = walkingDirection;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            walkingDirection.x = transform.localPosition.x - (walkingSpeed * cardboardHead.transform.forward.x);
+            walkingDirection.y = transform.localPosition.y - 0;
+            walkingDirection.z = transform.localPosition.z - (walkingSpeed * cardboardHead.transform.forward.z);
+           // transform.localPosition += walkingSpeed * -cardboardHead.transform.forward;
+           transform.localPosition = walkingDirection;
+        }
+
+        if (Input.GetKey(KeyCode.D)) {
+            //Disable strafing right for now
+            //transform.localPosition += walkingSpeed * (Quaternion.Euler(0, 90, 0) * cardboardHead.transform.forward);
+        }
+       
     }
 
     public void PerformRotation()
@@ -50,6 +90,19 @@ public class CameraMovement : MonoBehaviour {
         Vector3 correctedAxis = Quaternion.Inverse(initialRotation) * axis;
         Quaternion axisRotation = Quaternion.AngleAxis(90, correctedAxis);
         targetRotation = initialRotation * axisRotation;
+    }
+
+    public void zoomIn(bool flag)
+    {
+        moveFlag = flag;
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        walkingDirection.x = transform.localPosition.x - (1.5f * walkingSpeed * cardboardHead.transform.forward.x);
+        walkingDirection.y = transform.localPosition.y - 0;
+        walkingDirection.z = transform.localPosition.z - (1.5f * walkingSpeed * cardboardHead.transform.forward.z);
+        transform.localPosition = walkingDirection;
     }
 
 }
