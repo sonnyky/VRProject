@@ -24,6 +24,10 @@ public class ObjectGaze : MonoBehaviour
 {
     private Vector3 startingPosition;
 
+    private SpeechRecognizerManager _speechManager = null;
+    private bool _isListening = false;
+    private string _message = "";
+
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
     private float waitTimeUntilAutoConfirm = 4.0f;
@@ -34,8 +38,8 @@ public class ObjectGaze : MonoBehaviour
     private Vector3 deltaPos;
 
     // Properties to handle user moving in closer to the object
-    private float countdownToAutoMove;
-    private float waitTimeUntilAutoMove = 2.0f;
+    private float countdownToVoiceInput;
+    private float waitTimeUntilVoiceInput = 2.0f;
     private bool moveCloserToObject;
     private CardboardHead cardboardHead;
     private CameraMovement playerBody; //weird naming, but camera is effectively player's body
@@ -45,6 +49,21 @@ public class ObjectGaze : MonoBehaviour
 
     void Start()
     {
+        if (Application.platform != RuntimePlatform.Android)
+        {
+            Debug.Log("Speech recognition is only available on Android platform.");
+            return;
+        }
+
+        if (!SpeechRecognizerManager.IsAvailable())
+        {
+            Debug.Log("Speech recognition is not available on this device.");
+            return;
+        }
+
+        // We pass the game object's name that will receive the callback messages.
+        _speechManager = new SpeechRecognizerManager(gameObject.name);
+        _isListening = false;
         moveCloserToObject = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody =  GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
@@ -58,7 +77,7 @@ public class ObjectGaze : MonoBehaviour
         exclamationMark.transform.localPosition = deltaPos;
         waitingConfirmationFlag = false;
         countdownToAutoConfirm = waitTimeUntilAutoConfirm;
-        countdownToAutoMove = waitTimeUntilAutoMove;
+        countdownToVoiceInput = waitTimeUntilVoiceInput;
         SetGazedAt(false);
     }
 
@@ -68,42 +87,18 @@ public class ObjectGaze : MonoBehaviour
         RaycastHit hit;
         bool isLookedAt = GetComponent<Collider>().Raycast(cardboardHead.Gaze, out hit, Mathf.Infinity);
 
-        if (waitingConfirmationFlag && moveCloserToObject == false)
+        if (waitingConfirmationFlag)
         {
-            if (isLookedAt)
+           
+            countdownToVoiceInput -= Time.deltaTime;
+            if (countdownToVoiceInput < 0 && _isListening == false)
             {
-                countdownToAutoMove -= Time.deltaTime;
-                if (countdownToAutoMove < 0)
-                {
-                    print("gazing more than 2 seconds");
-                    //If we are not close to the object, then we move closer to the object
-                    if (moveCloserToObject == false)
-                    {
-                        print("move in closer to object");
-                        //Call public method of the player body to move it closer to this object
-                        moveCloserToObject = true;
-                        print(hit.point);
-                        playerBody.zoomIn(true);
-                    }
-                }
-            }
-        }else if (waitingConfirmationFlag && moveCloserToObject == true)
-        {
-            //We are close to the object and still gazing at it
-            countdownToAutoConfirm -= Time.deltaTime;
-            if(countdownToAutoConfirm < 0)
-            {
-                //Selected, do something
-                SceneManager.LoadScene("Hospital");
-                countdownToAutoConfirm = waitTimeUntilAutoConfirm;
-            }
+                print("gazing more than 2 seconds");
+                _isListening = true;
+                _speechManager.StartListening(3, "en-US");
 
-            //Check distance
-            if(hit.distance < 0.04)
-            {
-                playerBody.zoomIn(false);
             }
-
+            
         }
 
         Cardboard.SDK.UpdateState();
@@ -129,6 +124,7 @@ public class ObjectGaze : MonoBehaviour
             waitingConfirmationFlag = false;
             Destroy(GameObject.Find("exclamationMarkInstance"));
             countdownToAutoConfirm = waitTimeUntilAutoConfirm;
+            countdownToVoiceInput = waitTimeUntilVoiceInput;
         }
     }
 
@@ -149,4 +145,101 @@ public class ObjectGaze : MonoBehaviour
         float distance = 2 * Random.value + 1.5f;
         transform.localPosition = direction * distance;
     }
+
+#region MONOBEHAVIOUR
+    void OnDestroy()
+    {
+        if (_speechManager != null)
+            _speechManager.Release();
+    }
+
+#endregion
+
+    #region SPEECH_CALLBACKS
+
+    void OnSpeechEvent(string e)
+    {
+        switch (int.Parse(e))
+        {
+            case SpeechRecognizerManager.EVENT_SPEECH_READY:
+                DebugLog("Ready for speech");
+                break;
+            case SpeechRecognizerManager.EVENT_SPEECH_BEGINNING:
+                DebugLog("User started speaking");
+                break;
+            case SpeechRecognizerManager.EVENT_SPEECH_END:
+                DebugLog("User stopped speaking");
+                break;
+        }
+    }
+
+    void OnSpeechResults(string results)
+    {
+        _isListening = false;
+
+        // Need to parse
+        string[] texts = results.Split(new string[] { SpeechRecognizerManager.RESULT_SEPARATOR }, System.StringSplitOptions.None);
+        ;
+
+        DebugLog("Speech results:\n   " + string.Join("\n   ", texts));
+
+        if(texts[0] == "Android" || texts[0] == "android")
+        {
+            SceneManager.LoadScene("Hospital");
+        }
+    }
+
+    void OnSpeechError(string error)
+    {
+        switch (int.Parse(error))
+        {
+            case SpeechRecognizerManager.ERROR_AUDIO:
+                DebugLog("Error during recording the audio.");
+                break;
+            case SpeechRecognizerManager.ERROR_CLIENT:
+                DebugLog("Error on the client side.");
+                break;
+            case SpeechRecognizerManager.ERROR_INSUFFICIENT_PERMISSIONS:
+                DebugLog("Insufficient permissions. Do the RECORD_AUDIO and INTERNET permissions have been added to the manifest?");
+                break;
+            case SpeechRecognizerManager.ERROR_NETWORK:
+                DebugLog("A network error occured. Make sure the device has internet access.");
+                break;
+            case SpeechRecognizerManager.ERROR_NETWORK_TIMEOUT:
+                DebugLog("A network timeout occured. Make sure the device has internet access.");
+                break;
+            case SpeechRecognizerManager.ERROR_NO_MATCH:
+                DebugLog("No recognition result matched.");
+                break;
+            case SpeechRecognizerManager.ERROR_NOT_INITIALIZED:
+                DebugLog("Speech recognizer is not initialized.");
+                break;
+            case SpeechRecognizerManager.ERROR_RECOGNIZER_BUSY:
+                DebugLog("Speech recognizer service is busy.");
+                break;
+            case SpeechRecognizerManager.ERROR_SERVER:
+                DebugLog("Server sends error status.");
+                break;
+            case SpeechRecognizerManager.ERROR_SPEECH_TIMEOUT:
+                DebugLog("No speech input.");
+                break;
+            default:
+                break;
+        }
+
+        _isListening = false;
+    }
+
+    #endregion
+
+
+    #region DEBUG
+
+    private void DebugLog(string message)
+    {
+        Debug.Log(message);
+        _message = message;
+    }
+
+    #endregion
 }

@@ -92,11 +92,6 @@ public class CameraMovement : MonoBehaviour {
         targetRotation = initialRotation * axisRotation;
     }
 
-    public void zoomIn(bool flag)
-    {
-        moveFlag = flag;
-    }
-
     void OnCollisionEnter(Collision col)
     {
         walkingDirection.x = transform.localPosition.x - (1.5f * walkingSpeed * cardboardHead.transform.forward.x);
