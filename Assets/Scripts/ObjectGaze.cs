@@ -49,18 +49,6 @@ public class ObjectGaze : MonoBehaviour
 
     void Start()
     {
-        if (Application.platform != RuntimePlatform.Android)
-        {
-            Debug.Log("Speech recognition is only available on Android platform.");
-            return;
-        }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
-
         // We pass the game object's name that will receive the callback messages.
         _speechManager = new SpeechRecognizerManager(gameObject.name);
         _isListening = false;
@@ -73,20 +61,30 @@ public class ObjectGaze : MonoBehaviour
         deltaPos.x = startingPosition.x;
         deltaPos.y = startingPosition.y + 0.12f;
         deltaPos.z = startingPosition.z;
-        exclamationMark = (GameObject)Resources.Load("Prefab/ExclamationMark");
-        exclamationMark.transform.localPosition = deltaPos;
+
+        exclamationMark = Resources.Load("ExclamationMark") as GameObject;
+
         waitingConfirmationFlag = false;
         countdownToAutoConfirm = waitTimeUntilAutoConfirm;
         countdownToVoiceInput = waitTimeUntilVoiceInput;
         SetGazedAt(false);
+
+        if (Application.platform != RuntimePlatform.Android)
+        {
+            Debug.Log("Speech recognition is only available on Android platform.");
+            return;
+        }
+
+        if (!SpeechRecognizerManager.IsAvailable())
+        {
+            Debug.Log("Speech recognition is not available on this device.");
+            return;
+        }
     }
 
     void LateUpdate()
     {
-        //check every frame if the object is being gazed upon
-        RaycastHit hit;
-        bool isLookedAt = GetComponent<Collider>().Raycast(cardboardHead.Gaze, out hit, Mathf.Infinity);
-
+      
         if (waitingConfirmationFlag)
         {
            
@@ -114,15 +112,18 @@ public class ObjectGaze : MonoBehaviour
 
         if (gazedAt)
         {
-            exclamationMarkInstance = GameObject.Instantiate(exclamationMark, exclamationMark.transform.localPosition, markQuarternion) as GameObject;
-            exclamationMarkInstance.name = "exclamationMarkInstance";
 
+            exclamationMarkInstance = GameObject.Instantiate(exclamationMark, deltaPos, markQuarternion) as GameObject;
+            exclamationMarkInstance.name = "exclamationMarkInstance";
+            
             waitingConfirmationFlag = true;
         }
         else
         {
-            waitingConfirmationFlag = false;
-            Destroy(GameObject.Find("exclamationMarkInstance"));
+          
+                waitingConfirmationFlag = false;
+                Destroy(GameObject.Find("exclamationMarkInstance"));
+            
             countdownToAutoConfirm = waitTimeUntilAutoConfirm;
             countdownToVoiceInput = waitTimeUntilVoiceInput;
         }
