@@ -20,7 +20,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(Collider))]
-public class ObjectPickUpGaze : MonoBehaviour
+public class SwitchBox : MonoBehaviour
 {
     private Vector3 startingPosition;
 
@@ -44,13 +44,22 @@ public class ObjectPickUpGaze : MonoBehaviour
     //Unused right now
     private Quaternion markQuarternion;
 
+    //Parameters to control the lights
+    public GameObject pointlightbedroom;
+    public GameObject spotlightbedroom;
+
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
         _speechManager = new SpeechRecognizerManager(gameObject.name);
         _isListening = false;
+        toggleBedroomLights(false);
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
+
+        pointlightbedroom.GetComponent<Light>().intensity = 0;
+        spotlightbedroom.GetComponent<Light>().intensity = 0;
+
         scale = new Vector3(0.5f, 0.5f, 0.5f);
         markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
@@ -90,10 +99,10 @@ public class ObjectPickUpGaze : MonoBehaviour
             {
                 print("gazing more than 2 seconds");
 
-                //This part for flashligth
-                playerBody.toggleFlashLightOnOff(true);
+                //This part for bedroom lights
+                toggleBedroomLights(true);
                 SetGazedAt(false);
-                Destroy(gameObject);
+               // Destroy(gameObject);
             }
 
         }
@@ -119,7 +128,7 @@ public class ObjectPickUpGaze : MonoBehaviour
             waitingConfirmationFlag = true;
             print(waitingConfirmationFlag);
         }
-        if(!gazedAt)
+        if (!gazedAt)
         {
             print("Not Looking at object");
             waitingConfirmationFlag = false;
@@ -144,5 +153,20 @@ public class ObjectPickUpGaze : MonoBehaviour
         direction.y = Mathf.Clamp(direction.y, 0.5f, 1f);
         float distance = 2 * Random.value + 1.5f;
         transform.localPosition = direction * distance;
+    }
+
+    void toggleBedroomLights(bool switchLights)
+    {
+        if (switchLights)
+        {
+            pointlightbedroom.GetComponent<Light>().intensity = 0.5f;
+            spotlightbedroom.GetComponent<Light>().intensity = 0.5f;
+        }
+        else
+        {
+            pointlightbedroom.GetComponent<Light>().intensity = 0;
+            spotlightbedroom.GetComponent<Light>().intensity = 0;
+
+        }
     }
 }
