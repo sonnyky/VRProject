@@ -30,12 +30,17 @@ public class CameraMovement : MonoBehaviour {
     private bool moveFlag;
     private CardboardHead cardboardHead;
 
+    //Flashlight object
+    public GameObject flashlightOnPlayer;
+    private bool isFlashlightOn;
 
     // Use this for initialization
     void Start () {
         moveFlag = false;
         cachedTransform = transform;
         walkingDirection = new Vector3(0, 0, 0);
+        flashlightOnPlayer.GetComponent<Light>().intensity = 0;
+        isFlashlightOn = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
     }
 
@@ -100,4 +105,18 @@ public class CameraMovement : MonoBehaviour {
         transform.localPosition = walkingDirection;
     }
 
+    public void toggleFlashLightOnOff(bool turnOnFlashlight)
+    {
+        if (turnOnFlashlight)
+        {
+            isFlashlightOn = true;
+            flashlightOnPlayer.GetComponent<Light>().intensity = 2;
+        }
+        else
+        {
+            
+            isFlashlightOn = false;
+            flashlightOnPlayer.GetComponent<Light>().intensity = 0;
+        }
+    }
 }

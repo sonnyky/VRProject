@@ -115,15 +115,15 @@ public class ObjectGaze : MonoBehaviour
 
             exclamationMarkInstance = GameObject.Instantiate(exclamationMark, deltaPos, markQuarternion) as GameObject;
             exclamationMarkInstance.name = "exclamationMarkInstance";
-            
+            print("Looking at object");
             waitingConfirmationFlag = true;
         }
         else
         {
           
-                waitingConfirmationFlag = false;
-                Destroy(GameObject.Find("exclamationMarkInstance"));
-            
+            waitingConfirmationFlag = false;
+            Destroy(GameObject.Find("exclamationMarkInstance"));
+            print("Looking at object");
             countdownToAutoConfirm = waitTimeUntilAutoConfirm;
             countdownToVoiceInput = waitTimeUntilVoiceInput;
         }
