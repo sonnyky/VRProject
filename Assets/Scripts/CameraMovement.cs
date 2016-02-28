@@ -13,7 +13,7 @@ public class CameraMovement : MonoBehaviour {
     private float RotationSeconds = 0.2f;//w.r.t all axes
 
     //parameters to let the player walk
-    private float walkingSpeed = 0.03f; //walking speed in all directions, take care that on scenes with different scales the speed needed may vary.
+    private float walkingSpeed; //walking speed in all directions, take care that on scenes with different scales the speed needed may vary.
     private Vector3 walkingDirection;
 
   
@@ -33,14 +33,21 @@ public class CameraMovement : MonoBehaviour {
     //Flashlight object
     public GameObject flashlightOnPlayer;
     private bool isFlashlightOn;
+    private bool hasCoin;
+
+    //Parameter to store current head transform, so we can stop it.
+    private Transform curHeadTransform;
 
     // Use this for initialization
     void Start () {
         moveFlag = false;
         cachedTransform = transform;
         walkingDirection = new Vector3(0, 0, 0);
+        walkingSpeed = 0.03f;
         flashlightOnPlayer.GetComponent<Light>().intensity = 0;
+
         isFlashlightOn = false;
+        hasCoin = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
     }
 
@@ -99,9 +106,10 @@ public class CameraMovement : MonoBehaviour {
 
     void OnCollisionEnter(Collision col)
     {
-        walkingDirection.x = transform.localPosition.x - (1.5f * walkingSpeed * cardboardHead.transform.forward.x);
+        print("collision with something");
+        walkingDirection.x = transform.localPosition.x - (3.5f * walkingSpeed * cardboardHead.transform.forward.x);
         walkingDirection.y = transform.localPosition.y - 0;
-        walkingDirection.z = transform.localPosition.z - (1.5f * walkingSpeed * cardboardHead.transform.forward.z);
+        walkingDirection.z = transform.localPosition.z - (3.5f * walkingSpeed * cardboardHead.transform.forward.z);
         transform.localPosition = walkingDirection;
     }
 
@@ -118,5 +126,36 @@ public class CameraMovement : MonoBehaviour {
             isFlashlightOn = false;
             flashlightOnPlayer.GetComponent<Light>().intensity = 0;
         }
+    }
+
+    public void togglehasCoin(bool hasCoinFlag)
+    {
+        if (hasCoinFlag)
+        {
+            hasCoin = true;
+        }
+        else
+        {
+            hasCoin = false;
+        }
+    }
+
+    public bool getCoinStatus() { return hasCoin; }
+    public void stopPlayerMovement()
+    {
+        walkingSpeed = 0;
+    }
+    public void restartPlayerMovement()
+    {
+        walkingSpeed = 0.03f;
+    }
+
+    void getCurrentHeadPositionAndRotation()
+    {
+        curHeadTransform = GameObject.Find("Head").transform;
+    }
+    void keepCurrentHeadPositionAndRotation()
+    {
+        GameObject.Find("Head").transform.localRotation = curHeadTransform.localRotation;
     }
 }

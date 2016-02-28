@@ -30,7 +30,7 @@ public class SwitchBox : MonoBehaviour
 
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
-    private float waitTimeUntilAutoConfirm = 4.0f;
+    private float waitTimeUntilAutoConfirm = 2.0f;
     private bool waitingConfirmationFlag;
 
     //Properties to handle icon display to indicate user is interacting with the object
@@ -47,7 +47,7 @@ public class SwitchBox : MonoBehaviour
     //Parameters to control the lights
     public GameObject pointlightbedroom;
     public GameObject spotlightbedroom;
-
+    public GameObject pointlightbedroomposter;
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
@@ -59,8 +59,9 @@ public class SwitchBox : MonoBehaviour
 
         pointlightbedroom.GetComponent<Light>().intensity = 0;
         spotlightbedroom.GetComponent<Light>().intensity = 0;
+        pointlightbedroomposter.GetComponent<Light>().intensity = 0;
 
-        scale = new Vector3(0.5f, 0.5f, 0.5f);
+        scale = new Vector3(0.1f, 0.1f, 0.1f);
         markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
         deltaPos.x = startingPosition.x;
@@ -97,7 +98,7 @@ public class SwitchBox : MonoBehaviour
             countdownToAutoConfirm -= Time.deltaTime;
             if (countdownToAutoConfirm < 0)
             {
-                print("gazing more than 2 seconds");
+                //print("gazing more than 2 seconds");
 
                 //This part for bedroom lights
                 toggleBedroomLights(true);
@@ -126,11 +127,11 @@ public class SwitchBox : MonoBehaviour
             exclamationMarkInstance.transform.localScale = scale;
 
             waitingConfirmationFlag = true;
-            print(waitingConfirmationFlag);
+            //print(waitingConfirmationFlag);
         }
         if (!gazedAt)
         {
-            print("Not Looking at object");
+            //print("Not Looking at object");
             waitingConfirmationFlag = false;
             Destroy(GameObject.Find("exclamationMarkInstance"));
             countdownToAutoConfirm = waitTimeUntilAutoConfirm;
@@ -161,11 +162,13 @@ public class SwitchBox : MonoBehaviour
         {
             pointlightbedroom.GetComponent<Light>().intensity = 0.5f;
             spotlightbedroom.GetComponent<Light>().intensity = 0.5f;
+            pointlightbedroomposter.GetComponent<Light>().intensity = 0.5f;
         }
         else
         {
             pointlightbedroom.GetComponent<Light>().intensity = 0;
             spotlightbedroom.GetComponent<Light>().intensity = 0;
+            pointlightbedroomposter.GetComponent<Light>().intensity = 0;
 
         }
     }

@@ -30,7 +30,7 @@ public class ObjectPickUpGaze : MonoBehaviour
 
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
-    private float waitTimeUntilAutoConfirm = 4.0f;
+    private float waitTimeUntilAutoConfirm = 2.0f;
     private bool waitingConfirmationFlag;
 
     //Properties to handle icon display to indicate user is interacting with the object
@@ -51,7 +51,7 @@ public class ObjectPickUpGaze : MonoBehaviour
         _isListening = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
-        scale = new Vector3(0.5f, 0.5f, 0.5f);
+        scale = new Vector3(0.1f, 0.1f, 0.1f);
         markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
         deltaPos.x = startingPosition.x;
@@ -90,7 +90,7 @@ public class ObjectPickUpGaze : MonoBehaviour
             {
                 print("gazing more than 2 seconds");
 
-                //This part for flashligth
+                //This part for flashlight
                 playerBody.toggleFlashLightOnOff(true);
                 SetGazedAt(false);
                 Destroy(gameObject);
