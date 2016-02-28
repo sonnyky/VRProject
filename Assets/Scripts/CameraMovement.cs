@@ -48,6 +48,7 @@ public class CameraMovement : MonoBehaviour {
     public AudioClip lightSwitch;
     public AudioClip roomTable;
     public AudioClip roomBed;
+    public AudioClip lookAtRAm;
 
     // Use this for initialization
     void Start () {
@@ -204,6 +205,12 @@ public class CameraMovement : MonoBehaviour {
                 audiosource.clip = roomBed;
                 audiosource.Play();
                 break;
+                /*
+            case 8:
+                audiosource.clip = lookAtRAm;
+                audiosource.Play();
+                break;
+                */
             default:
                 break;
         }
