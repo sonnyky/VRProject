@@ -46,6 +46,8 @@ public class CameraMovement : MonoBehaviour {
     public AudioClip weCanUseThis;
     public AudioClip roomDoorLocked;
     public AudioClip lightSwitch;
+    public AudioClip roomTable;
+    public AudioClip roomBed;
 
     // Use this for initialization
     void Start () {
@@ -192,6 +194,14 @@ public class CameraMovement : MonoBehaviour {
                 break;
             case 5:
                 audiosource.clip = lightSwitch;
+                audiosource.Play();
+                break;
+            case 6:
+                audiosource.clip = roomTable;
+                audiosource.Play();
+                break;
+            case 7:
+                audiosource.clip = roomBed;
                 audiosource.Play();
                 break;
             default:
