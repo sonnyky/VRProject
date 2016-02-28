@@ -102,6 +102,7 @@ public class SwitchBox : MonoBehaviour
 
                 //This part for bedroom lights
                 toggleBedroomLights(true);
+                playerBody.changeAudioSource(5);
                 SetGazedAt(false);
                // Destroy(gameObject);
             }

@@ -9,9 +9,12 @@ public class ExitDoor : MonoBehaviour {
     private static Vector3 vec = new Vector3(0.0f, 1.0f, 0.0f);
     private static AudioSource audioSource;
 
+    private CameraMovement playerInstance;
+
     // Use this for initialization
     void Start () {
-	    gameObject.transform.Rotate(new Vector3(0.0f, degree, 0.0f)); // x,y,z
+        playerInstance = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
+        gameObject.transform.Rotate(new Vector3(0.0f, degree, 0.0f)); // x,y,z
         audioSource = gameObject.GetComponent<AudioSource>();
     }
 
@@ -26,12 +29,13 @@ public class ExitDoor : MonoBehaviour {
         }
     }
 
-    public static void Open()
+    public void Open()
     {
         if (!isOpenEnd)
         {
             isOpenStart = true;
             audioSource.Play();
+            playerInstance.changeAudioSource(1);
         }
     }
 

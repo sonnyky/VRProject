@@ -43,13 +43,15 @@ public class RoomDoor : MonoBehaviour
 
     //Unused right now
     private Quaternion markQuarternion;
+
+    //Door
     private string[] resultLst;
+    public GameObject testGameObject;
 
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
-        _isListening = false;
+        
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
         scale = new Vector3(0.1f, 0.1f, 0.1f);
@@ -65,6 +67,10 @@ public class RoomDoor : MonoBehaviour
         countdownToAutoConfirm = waitTimeUntilAutoConfirm;
         SetGazedAt(false);
 
+        _speechManager = new SpeechRecognizerManager(gameObject.name);
+        Debug.Log("Start : " + gameObject.name);
+        print("Start :------------------------------------------------" + gameObject.name);
+        _isListening = false;
         if (Application.platform != RuntimePlatform.Android)
         {
             Debug.Log("Speech recognition is only available on Android platform.");
@@ -76,13 +82,18 @@ public class RoomDoor : MonoBehaviour
             Debug.Log("Speech recognition is not available on this device.");
             return;
         }
+       
     }
 
     void LateUpdate()
     {
         //check every frame if the object is being gazed upon
 
-
+        if (Input.GetKey(KeyCode.A))
+        {
+            //gameObject.GetComponent<ExitDoor>().Open();
+            _speechManager.StartListening(5, "ja");
+        }
         if (waitingConfirmationFlag)
         {
 
@@ -92,7 +103,11 @@ public class RoomDoor : MonoBehaviour
                 print("Ask the user to say password");
                 //Voice?
                 _isListening = true;
-                _speechManager.StartListening(5, "ja");
+                Debug.Log("Listening" + gameObject.name);
+                print("Listening :------------------------------------------------" + gameObject.name);
+                //_speechManager.StartListening(5, "ja");
+                _speechManager.StartListening(3, "en-US");
+                print("After Listening :------------------------------------------------" + gameObject.name);
                 SetGazedAt(false);
             }
 
@@ -175,18 +190,18 @@ public class RoomDoor : MonoBehaviour
 
     void OnSpeechResults(string results)
     {
-        // Need to parse
-        resultLst = results.Split(new string[] { SpeechRecognizerManager.RESULT_SEPARATOR }, System.StringSplitOptions.None);
+        Debug.Log("Hello-----------------------");
+        _isListening = false;
 
-        // Compare String
-        if (SpeachResult.wordCmp(resultLst, "やぎ") || SpeachResult.wordCmp(resultLst, "山羊"))
+        // Need to parse
+        string[] texts = results.Split(new string[] { SpeechRecognizerManager.RESULT_SEPARATOR }, System.StringSplitOptions.None);
+        ;
+
+        DebugLog("Speech results:\n   " + string.Join("\n   ", texts));
+
+        if (texts[0] == "Android" || texts[0] == "android")
         {
-            Debug.Log("OK!");
-            ExitDoor.Open();
-        }
-        else
-        {
-            Debug.Log("NG!");
+            gameObject.GetComponent<ExitDoor>().Open();
         }
     }
 
@@ -194,6 +209,7 @@ public class RoomDoor : MonoBehaviour
 
     void OnSpeechError(string error)
     {
+        print(error);
         switch (int.Parse(error))
         {
             case SpeechRecognizerManager.ERROR_AUDIO:
@@ -227,6 +243,7 @@ public class RoomDoor : MonoBehaviour
                 DebugLog("No speech input.");
                 break;
             default:
+                Debug.Log("some error");
                 break;
         }
 

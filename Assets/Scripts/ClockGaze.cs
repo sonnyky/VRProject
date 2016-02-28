@@ -91,6 +91,7 @@ public class ClockGaze : MonoBehaviour
                 print("say something");
                 //Voice?
                 Clock.MoveStart();
+                playerBody.changeAudioSource(2);
                 SetGazedAt(false);
             }
 

@@ -38,8 +38,18 @@ public class CameraMovement : MonoBehaviour {
     //Parameter to store current head transform, so we can stop it.
     private Transform curHeadTransform;
 
+    //Parameter to hold different Audio Clip
+    public AudioClip corridorBgm;
+    public AudioClip wakeUp;
+    private AudioSource audiosource;
+    public AudioClip clockAudio;
+    public AudioClip weCanUseThis;
+    public AudioClip roomDoorLocked;
+    public AudioClip lightSwitch;
+
     // Use this for initialization
     void Start () {
+        audiosource = gameObject.GetComponentInChildren<AudioSource>();
         moveFlag = false;
         cachedTransform = transform;
         walkingDirection = new Vector3(0, 0, 0);
@@ -157,5 +167,35 @@ public class CameraMovement : MonoBehaviour {
     void keepCurrentHeadPositionAndRotation()
     {
         GameObject.Find("Head").transform.localRotation = curHeadTransform.localRotation;
+    }
+
+    public void changeAudioSource(int audioCode)
+    {
+        switch (audioCode) {
+            case 0:
+                audiosource.clip = wakeUp;
+                break;
+            case 1:
+                audiosource.clip = corridorBgm;
+                break;
+            case 2:
+                audiosource.clip = clockAudio;
+                audiosource.Play();
+                break;
+            case 3:
+                audiosource.clip = weCanUseThis;
+                audiosource.Play();
+                break;
+            case 4:
+                audiosource.clip = roomDoorLocked;
+                audiosource.Play();
+                break;
+            case 5:
+                audiosource.clip = lightSwitch;
+                audiosource.Play();
+                break;
+            default:
+                break;
+        }
     }
 }
