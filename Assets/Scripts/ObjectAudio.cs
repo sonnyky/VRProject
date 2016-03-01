@@ -45,7 +45,7 @@ public class ObjectAudio : MonoBehaviour
     private Quaternion markQuarternion;
 
     public int audioCodeForObject = 0;
-
+    public GameObject DoorGameObject;
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
@@ -93,7 +93,10 @@ public class ObjectAudio : MonoBehaviour
             {
                 print("say something");
                 //Voice?
-               
+                if (gameObject.name == "LookAtRam")
+                {
+                    DoorGameObject.GetComponent<ExitDoor>().Open();
+                }
                 playerBody.changeAudioSource(audioCodeForObject);
                 SetGazedAt(false);
             }
