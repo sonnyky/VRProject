@@ -24,10 +24,6 @@ public class RoomDoor : MonoBehaviour
 {
     private Vector3 startingPosition;
 
-    private SpeechRecognizerManager _speechManager = null;
-    private bool _isListening = false;
-    private string _message = "";
-
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
     private float waitTimeUntilAutoConfirm = 2.0f;
@@ -50,7 +46,6 @@ public class RoomDoor : MonoBehaviour
 
     void Start()
     {
-        // We pass the game object's name that will receive the callback messages.
         
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
@@ -66,22 +61,7 @@ public class RoomDoor : MonoBehaviour
         waitingConfirmationFlag = false;
         countdownToAutoConfirm = waitTimeUntilAutoConfirm;
         SetGazedAt(false);
-
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
-        Debug.Log("Start : " + gameObject.name);
-        print("Start :------------------------------------------------" + gameObject.name);
-        _isListening = false;
-        if (Application.platform != RuntimePlatform.Android)
-        {
-            Debug.Log("Speech recognition is only available on Android platform.");
-            return;
-        }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
+  
        
     }
 
@@ -89,25 +69,14 @@ public class RoomDoor : MonoBehaviour
     {
         //check every frame if the object is being gazed upon
 
-        if (Input.GetKey(KeyCode.A))
-        {
-            //gameObject.GetComponent<ExitDoor>().Open();
-            _speechManager.StartListening(5, "ja");
-        }
+       
         if (waitingConfirmationFlag)
         {
 
             countdownToAutoConfirm -= Time.deltaTime;
             if (countdownToAutoConfirm < 0)
             {
-                print("Ask the user to say password");
-                //Voice?
-                _isListening = true;
-                Debug.Log("Listening" + gameObject.name);
-                print("Listening :------------------------------------------------" + gameObject.name);
-                //_speechManager.StartListening(5, "ja");
-                _speechManager.StartListening(3, "en-US");
-                print("After Listening :------------------------------------------------" + gameObject.name);
+             
                 SetGazedAt(false);
             }
 
@@ -160,106 +129,4 @@ public class RoomDoor : MonoBehaviour
         float distance = 2 * Random.value + 1.5f;
         transform.localPosition = direction * distance;
     }
-
-    #region MONOBEHAVIOUR
-    void OnDestroy()
-    {
-        if (_speechManager != null)
-            _speechManager.Release();
-    }
-
-    #endregion
-
-    #region SPEECH_CALLBACKS
-
-    void OnSpeechEvent(string e)
-    {
-        switch (int.Parse(e))
-        {
-            case SpeechRecognizerManager.EVENT_SPEECH_READY:
-                DebugLog("Ready for speech");
-                break;
-            case SpeechRecognizerManager.EVENT_SPEECH_BEGINNING:
-                DebugLog("User started speaking");
-                break;
-            case SpeechRecognizerManager.EVENT_SPEECH_END:
-                DebugLog("User stopped speaking");
-                break;
-        }
-    }
-
-    void OnSpeechResults(string results)
-    {
-        Debug.Log("Hello-----------------------");
-        _isListening = false;
-
-        // Need to parse
-        string[] texts = results.Split(new string[] { SpeechRecognizerManager.RESULT_SEPARATOR }, System.StringSplitOptions.None);
-        ;
-
-        DebugLog("Speech results:\n   " + string.Join("\n   ", texts));
-
-        if (texts[0] == "Android" || texts[0] == "android")
-        {
-            gameObject.GetComponent<ExitDoor>().Open();
-        }
-    }
-
-
-
-    void OnSpeechError(string error)
-    {
-        print(error);
-        switch (int.Parse(error))
-        {
-            case SpeechRecognizerManager.ERROR_AUDIO:
-                DebugLog("Error during recording the audio.");
-                break;
-            case SpeechRecognizerManager.ERROR_CLIENT:
-                DebugLog("Error on the client side.");
-                break;
-            case SpeechRecognizerManager.ERROR_INSUFFICIENT_PERMISSIONS:
-                DebugLog("Insufficient permissions. Do the RECORD_AUDIO and INTERNET permissions have been added to the manifest?");
-                break;
-            case SpeechRecognizerManager.ERROR_NETWORK:
-                DebugLog("A network error occured. Make sure the device has internet access.");
-                break;
-            case SpeechRecognizerManager.ERROR_NETWORK_TIMEOUT:
-                DebugLog("A network timeout occured. Make sure the device has internet access.");
-                break;
-            case SpeechRecognizerManager.ERROR_NO_MATCH:
-                DebugLog("No recognition result matched.");
-                break;
-            case SpeechRecognizerManager.ERROR_NOT_INITIALIZED:
-                DebugLog("Speech recognizer is not initialized.");
-                break;
-            case SpeechRecognizerManager.ERROR_RECOGNIZER_BUSY:
-                DebugLog("Speech recognizer service is busy.");
-                break;
-            case SpeechRecognizerManager.ERROR_SERVER:
-                DebugLog("Server sends error status.");
-                break;
-            case SpeechRecognizerManager.ERROR_SPEECH_TIMEOUT:
-                DebugLog("No speech input.");
-                break;
-            default:
-                Debug.Log("some error");
-                break;
-        }
-
-        _isListening = false;
-    }
-
-    #endregion
-
-
-    #region DEBUG
-
-    private void DebugLog(string message)
-    {
-        Debug.Log(message);
-        _message = message;
-    }
-
-    #endregion
 }

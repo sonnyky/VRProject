@@ -16,6 +16,8 @@ public class CameraMovement : MonoBehaviour {
     private float walkingSpeed; //walking speed in all directions, take care that on scenes with different scales the speed needed may vary.
     private Vector3 walkingDirection;
 
+    //For voice recognition
+    private bool _is_listening;
   
     // the current interpolation t - will move from 0 to 1
     // as the interpolation proceeds
@@ -49,7 +51,9 @@ public class CameraMovement : MonoBehaviour {
     public AudioClip roomTable;
     public AudioClip roomBed;
     public AudioClip lookAtRAm;
-
+    private AndroidJavaClass javaClass;
+    private AndroidJavaClass speechClass;
+    private AndroidJavaObject activity;
     // Use this for initialization
     void Start () {
         audiosource = gameObject.GetComponentInChildren<AudioSource>();
@@ -58,22 +62,44 @@ public class CameraMovement : MonoBehaviour {
         walkingDirection = new Vector3(0, 0, 0);
         walkingSpeed = 0.03f;
         flashlightOnPlayer.GetComponent<Light>().intensity = 0;
+        _is_listening = false;
 
         isFlashlightOn = false;
         hasCoin = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
+
+       /*
+       //The following code only works with the Android voice plugin
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+
+        javaClass = new AndroidJavaClass("tinker.unityplugin.NativePlugin");
+        speechClass = new AndroidJavaClass("tinker.unityplugin.SpeechRecognizerPlugin");
+        javaClass.CallStatic("showToast", "Test Android Native Plugin");
+        */
     }
 
+    public void ReceiveMessageFromAndroid(string message)
+    {
+       /*
+        javaClass.CallStatic("showToast", message);
+        if(message == "Android" || message == "android" || message == "No match")
+        {
+            _is_listening = false;
+        }
+        */
+    }
+  
     // Update is called once per frame
-       
+
     void Update () {
 
         //check collider to see if we bumped into anything
 
 
-        if (Input.GetKey(KeyCode.A)) {
-            //Disable strafing left for now
-            //transform.localPosition += walkingSpeed * (Quaternion.Euler(0, -90, 0) * cardboardHead.transform.forward);
+        if (Input.GetKey(KeyCode.A) && _is_listening == false) {
+            speechClass.CallStatic("StartListening", activity);
+            _is_listening = true;
         }
 
         if (Input.GetKey(KeyCode.W))

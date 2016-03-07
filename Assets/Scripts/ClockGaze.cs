@@ -24,10 +24,6 @@ public class ClockGaze : MonoBehaviour
 {
     private Vector3 startingPosition;
 
-    private SpeechRecognizerManager _speechManager = null;
-    private bool _isListening = false;
-    private string _message = "";
-
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
     private float waitTimeUntilAutoConfirm = 2.0f;
@@ -46,9 +42,6 @@ public class ClockGaze : MonoBehaviour
 
     void Start()
     {
-        // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
-        _isListening = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
         scale = new Vector3(0.1f, 0.1f, 0.1f);
@@ -88,8 +81,7 @@ public class ClockGaze : MonoBehaviour
             countdownToAutoConfirm -= Time.deltaTime;
             if (countdownToAutoConfirm < 0)
             {
-                print("say something");
-                //Voice?
+             
                 Clock.MoveStart();
                 playerBody.changeAudioSource(2);
                 SetGazedAt(false);

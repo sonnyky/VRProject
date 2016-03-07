@@ -23,11 +23,6 @@ using System.Collections;
 public class ObjectAudio : MonoBehaviour
 {
     private Vector3 startingPosition;
-
-    private SpeechRecognizerManager _speechManager = null;
-    private bool _isListening = false;
-    private string _message = "";
-
     //Properties to handle auto select, based on how long the user gazes at the object
     private float countdownToAutoConfirm;
     private float waitTimeUntilAutoConfirm = 2.0f;
@@ -48,9 +43,7 @@ public class ObjectAudio : MonoBehaviour
     public GameObject DoorGameObject;
     void Start()
     {
-        // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
-        _isListening = false;
+       
         //audioCodeForObject = 3;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
@@ -66,18 +59,6 @@ public class ObjectAudio : MonoBehaviour
         waitingConfirmationFlag = false;
         countdownToAutoConfirm = waitTimeUntilAutoConfirm;
         SetGazedAt(false);
-
-        if (Application.platform != RuntimePlatform.Android)
-        {
-            Debug.Log("Speech recognition is only available on Android platform.");
-            return;
-        }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
     }
 
     void LateUpdate()
@@ -91,8 +72,6 @@ public class ObjectAudio : MonoBehaviour
             countdownToAutoConfirm -= Time.deltaTime;
             if (countdownToAutoConfirm < 0)
             {
-                print("say something");
-                //Voice?
                 if (gameObject.name == "LookAtRam")
                 {
                     DoorGameObject.GetComponent<ExitDoor>().Open();
