@@ -3,6 +3,14 @@ using System.Collections;
 
 
 public class CameraMovement : MonoBehaviour {
+    //Parameters to enable speech recognition
+    private SpeechRecognizerManager _speechManager = null;
+    private string _message = "";
+    private string[] resultList;
+
+    //Parameter to get the RoomDoor class
+    private RoomDoor roomDoorClass;
+
     /*
     Attach this script to the CardboardMain in the scene to enable moving the CardboardMain object
     which is the user's body, from other scripts
@@ -67,16 +75,35 @@ public class CameraMovement : MonoBehaviour {
         isFlashlightOn = false;
         hasCoin = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
-
-       /*
-       //The following code only works with the Android voice plugin
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 
         javaClass = new AndroidJavaClass("tinker.unityplugin.NativePlugin");
-        speechClass = new AndroidJavaClass("tinker.unityplugin.SpeechRecognizerPlugin");
-        javaClass.CallStatic("showToast", "Test Android Native Plugin");
-        */
+
+        roomDoorClass = GameObject.Find("RoomDoorMain").GetComponent<RoomDoor>();
+        /*
+        //The following code only works with the Android voice plugin
+         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+         activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+
+         javaClass = new AndroidJavaClass("tinker.unityplugin.NativePlugin");
+         speechClass = new AndroidJavaClass("tinker.unityplugin.SpeechRecognizerPlugin");
+         javaClass.CallStatic("showToast", "Test Android Native Plugin");
+         */
+        if (Application.platform != RuntimePlatform.Android)
+        {
+            Debug.Log("Speech recognition is only available on Android platform.");
+            return;
+        }
+
+        if (!SpeechRecognizerManager.IsAvailable())
+        {
+            Debug.Log("Speech recognition is not available on this device.");
+            return;
+        }
+        // We pass the game object's name that will receive the callback messages.
+        _speechManager = new SpeechRecognizerManager(gameObject.name);
+        _is_listening = false;
     }
 
     public void ReceiveMessageFromAndroid(string message)
@@ -94,12 +121,12 @@ public class CameraMovement : MonoBehaviour {
 
     void Update () {
 
-        //check collider to see if we bumped into anything
-
-
         if (Input.GetKey(KeyCode.A) && _is_listening == false) {
-            speechClass.CallStatic("StartListening", activity);
+            //speechClass.CallStatic("StartListening", activity);
+
             _is_listening = true;
+            _speechManager.StartListening(5, "ja");
+
         }
 
         if (Input.GetKey(KeyCode.W))
@@ -241,4 +268,97 @@ public class CameraMovement : MonoBehaviour {
                 break;
         }
     }
+
+    #region MONOBEHAVIOUR
+    void OnDestroy()
+    {
+        if (_speechManager != null)
+            _speechManager.Release();
+    }
+
+    #endregion
+
+    #region SPEECH_CALLBACKS
+
+    void OnSpeechEvent(string e)
+    {
+        switch (int.Parse(e))
+        {
+            case SpeechRecognizerManager.EVENT_SPEECH_READY:
+                DebugLog("Ready for speech");
+                break;
+            case SpeechRecognizerManager.EVENT_SPEECH_BEGINNING:
+                DebugLog("User started speaking");
+                break;
+            case SpeechRecognizerManager.EVENT_SPEECH_END:
+                DebugLog("User stopped speaking");
+                break;
+        }
+    }
+
+    void OnSpeechResults(string results)
+    {
+        _is_listening = false;
+
+        // Need to parse
+        resultList = results.Split(new string[] { SpeechRecognizerManager.RESULT_SEPARATOR }, System.StringSplitOptions.None);
+        javaClass.CallStatic("showToast", resultList[0]);
+        roomDoorClass.InputAnswer(resultList[0]);
+        
+    }
+
+    void OnSpeechError(string error)
+    {
+        switch (int.Parse(error))
+        {
+            case SpeechRecognizerManager.ERROR_AUDIO:
+                DebugLog("Error during recording the audio.");
+                break;
+            case SpeechRecognizerManager.ERROR_CLIENT:
+                DebugLog("Error on the client side.");
+                break;
+            case SpeechRecognizerManager.ERROR_INSUFFICIENT_PERMISSIONS:
+                DebugLog("Insufficient permissions. Do the RECORD_AUDIO and INTERNET permissions have been added to the manifest?");
+                break;
+            case SpeechRecognizerManager.ERROR_NETWORK:
+                DebugLog("A network error occured. Make sure the device has internet access.");
+                break;
+            case SpeechRecognizerManager.ERROR_NETWORK_TIMEOUT:
+                DebugLog("A network timeout occured. Make sure the device has internet access.");
+                break;
+            case SpeechRecognizerManager.ERROR_NO_MATCH:
+                DebugLog("No recognition result matched.");
+                break;
+            case SpeechRecognizerManager.ERROR_NOT_INITIALIZED:
+                DebugLog("Speech recognizer is not initialized.");
+                break;
+            case SpeechRecognizerManager.ERROR_RECOGNIZER_BUSY:
+                DebugLog("Speech recognizer service is busy.");
+                break;
+            case SpeechRecognizerManager.ERROR_SERVER:
+                DebugLog("Server sends error status.");
+                break;
+            case SpeechRecognizerManager.ERROR_SPEECH_TIMEOUT:
+                DebugLog("No speech input.");
+                break;
+            default:
+                break;
+        }
+
+        _is_listening = false;
+    }
+
+    #endregion
+
+
+    #region DEBUG
+
+    private void DebugLog(string message)
+    {
+        Debug.Log(message);
+        _message = message;
+    }
+
+    #endregion
+
 }

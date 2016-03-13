@@ -76,7 +76,8 @@ public class RoomDoor : MonoBehaviour
             countdownToAutoConfirm -= Time.deltaTime;
             if (countdownToAutoConfirm < 0)
             {
-             
+             //Ask player to input password
+
                 SetGazedAt(false);
             }
 
@@ -128,5 +129,14 @@ public class RoomDoor : MonoBehaviour
         direction.y = Mathf.Clamp(direction.y, 0.5f, 1f);
         float distance = 2 * Random.value + 1.5f;
         transform.localPosition = direction * distance;
+    }
+
+    public void InputAnswer(string input)
+    {
+        //Called by the player game object to give the password to the Room Door
+        if(input == "yagi" || input == "やぎ")
+        {
+            gameObject.GetComponent<ExitDoor>().Open();
+        }
     }
 }
