@@ -81,40 +81,29 @@ public class CameraMovement : MonoBehaviour {
         javaClass = new AndroidJavaClass("tinker.unityplugin.NativePlugin");
 
         roomDoorClass = GameObject.Find("RoomDoorMain").GetComponent<RoomDoor>();
-        /*
-        //The following code only works with the Android voice plugin
-         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-         activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-
+        
          javaClass = new AndroidJavaClass("tinker.unityplugin.NativePlugin");
          speechClass = new AndroidJavaClass("tinker.unityplugin.SpeechRecognizerPlugin");
          javaClass.CallStatic("showToast", "Test Android Native Plugin");
-         */
+         
         if (Application.platform != RuntimePlatform.Android)
         {
             Debug.Log("Speech recognition is only available on Android platform.");
             return;
         }
 
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
-        // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
         _is_listening = false;
     }
 
     public void ReceiveMessageFromAndroid(string message)
     {
-       /*
+       
         javaClass.CallStatic("showToast", message);
         if(message == "Android" || message == "android" || message == "No match")
         {
             _is_listening = false;
         }
-        */
+        
     }
   
     // Update is called once per frame
@@ -122,7 +111,7 @@ public class CameraMovement : MonoBehaviour {
     void Update () {
 
         if (Input.GetKey(KeyCode.A) && _is_listening == false) {
-            //speechClass.CallStatic("StartListening", activity);
+            speechClass.CallStatic("StartListening", activity);
 
             _is_listening = true;
             _speechManager.StartListening(5, "ja");

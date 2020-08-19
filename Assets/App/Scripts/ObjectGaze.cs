@@ -50,7 +50,8 @@ public class ObjectGaze : MonoBehaviour
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
+        _speechManager = new SpeechRecognizerManager();
+        _speechManager.SetReceiver(gameObject);
         _isListening = false;
         moveCloserToObject = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
