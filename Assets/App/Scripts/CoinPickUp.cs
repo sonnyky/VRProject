@@ -47,7 +47,8 @@ public class CoinPickUp : MonoBehaviour
     void Start()
     {
         // We pass the game object's name that will receive the callback messages.
-        _speechManager = new SpeechRecognizerManager(gameObject.name);
+        _speechManager = new SpeechRecognizerManager();
+        _speechManager.SetReceiver(gameObject);
         _isListening = false;
         cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
@@ -67,12 +68,6 @@ public class CoinPickUp : MonoBehaviour
         if (Application.platform != RuntimePlatform.Android)
         {
             Debug.Log("Speech recognition is only available on Android platform.");
-            return;
-        }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
             return;
         }
     }

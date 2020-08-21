@@ -75,12 +75,6 @@ public class ObjectGaze : MonoBehaviour
             Debug.Log("Speech recognition is only available on Android platform.");
             return;
         }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
     }
 
     void LateUpdate()
@@ -94,7 +88,7 @@ public class ObjectGaze : MonoBehaviour
             {
                 print("gazing more than 2 seconds");
                 _isListening = true;
-                _speechManager.StartListening(3, "en-US");
+                _speechManager.StartListening("en-US");
 
             }
             

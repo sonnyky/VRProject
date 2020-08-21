@@ -62,12 +62,6 @@ public class ClockGaze : MonoBehaviour
             Debug.Log("Speech recognition is only available on Android platform.");
             return;
         }
-
-        if (!SpeechRecognizerManager.IsAvailable())
-        {
-            Debug.Log("Speech recognition is not available on this device.");
-            return;
-        }
     }
 
     void LateUpdate()

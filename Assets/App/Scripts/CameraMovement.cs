@@ -114,7 +114,7 @@ public class CameraMovement : MonoBehaviour {
             speechClass.CallStatic("StartListening", activity);
 
             _is_listening = true;
-            _speechManager.StartListening(5, "ja");
+            _speechManager.StartListening("ja");
 
         }
 
