@@ -13,7 +13,6 @@ public class ExitDoor : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        playerInstance = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
         gameObject.transform.Rotate(new Vector3(0.0f, degree, 0.0f)); // x,y,z
         audioSource = gameObject.GetComponent<AudioSource>();
     }

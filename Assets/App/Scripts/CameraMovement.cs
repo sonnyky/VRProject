@@ -38,7 +38,6 @@ public class CameraMovement : MonoBehaviour {
     // true when rotating
     private bool isRotating;
     private bool moveFlag;
-    private CardboardHead cardboardHead;
 
     //Flashlight object
     public GameObject flashlightOnPlayer;
@@ -62,6 +61,7 @@ public class CameraMovement : MonoBehaviour {
     private AndroidJavaClass javaClass;
     private AndroidJavaClass speechClass;
     private AndroidJavaObject activity;
+    private float angle = 0f;
     // Use this for initialization
     void Start () {
         audiosource = gameObject.GetComponentInChildren<AudioSource>();
@@ -74,7 +74,6 @@ public class CameraMovement : MonoBehaviour {
 
         isFlashlightOn = false;
         hasCoin = false;
-        cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 
@@ -110,7 +109,7 @@ public class CameraMovement : MonoBehaviour {
 
     void Update () {
 
-        if (Input.GetKey(KeyCode.A) && _is_listening == false) {
+        if (Input.GetKey(KeyCode.L) && _is_listening == false) {
             speechClass.CallStatic("StartListening", activity);
 
             _is_listening = true;
@@ -120,25 +119,39 @@ public class CameraMovement : MonoBehaviour {
 
         if (Input.GetKey(KeyCode.W))
         {
-            walkingDirection.x = transform.localPosition.x + (walkingSpeed * cardboardHead.transform.forward.x);
+            //walkingDirection.x = transform.localPosition.x + (walkingSpeed * cardboardHead.transform.forward.x);
             walkingDirection.y = transform.localPosition.y + 0;
-            walkingDirection.z = transform.localPosition.z + (walkingSpeed * cardboardHead.transform.forward.z);
+            //walkingDirection.z = transform.localPosition.z + (walkingSpeed * cardboardHead.transform.forward.z);
             transform.localPosition = walkingDirection;
         }
         if (Input.GetKey(KeyCode.S))
         {
-            walkingDirection.x = transform.localPosition.x - (walkingSpeed * cardboardHead.transform.forward.x);
+           // walkingDirection.x = transform.localPosition.x - (walkingSpeed * cardboardHead.transform.forward.x);
             walkingDirection.y = transform.localPosition.y - 0;
-            walkingDirection.z = transform.localPosition.z - (walkingSpeed * cardboardHead.transform.forward.z);
+           // walkingDirection.z = transform.localPosition.z - (walkingSpeed * cardboardHead.transform.forward.z);
            // transform.localPosition += walkingSpeed * -cardboardHead.transform.forward;
            transform.localPosition = walkingDirection;
         }
 
         if (Input.GetKey(KeyCode.D)) {
-            //Disable strafing right for now
             //transform.localPosition += walkingSpeed * (Quaternion.Euler(0, 90, 0) * cardboardHead.transform.forward);
         }
-       
+        if (Input.GetKey(KeyCode.A))
+        {
+            //transform.localPosition += walkingSpeed * (Quaternion.Euler(0, -90, 0) * cardboardHead.transform.forward);
+        }
+        if (Input.GetKey(KeyCode.U))
+        {
+            angle -= 15f * Time.deltaTime;
+            transform.localRotation = Quaternion.Euler(angle, 0, 0);
+        }
+
+        if (Input.GetKey(KeyCode.J))
+        {
+            angle += 15f * Time.deltaTime;
+            transform.localRotation = Quaternion.Euler(angle, 0, 0);
+        }
+
     }
 
     public void PerformRotation()
@@ -162,9 +175,9 @@ public class CameraMovement : MonoBehaviour {
     void OnCollisionEnter(Collision col)
     {
         print("collision with something");
-        walkingDirection.x = transform.localPosition.x - (3.5f * walkingSpeed * cardboardHead.transform.forward.x);
+       // walkingDirection.x = transform.localPosition.x - (3.5f * walkingSpeed * cardboardHead.transform.forward.x);
         walkingDirection.y = transform.localPosition.y - 0;
-        walkingDirection.z = transform.localPosition.z - (3.5f * walkingSpeed * cardboardHead.transform.forward.z);
+       // walkingDirection.z = transform.localPosition.z - (3.5f * walkingSpeed * cardboardHead.transform.forward.z);
         transform.localPosition = walkingDirection;
     }
 

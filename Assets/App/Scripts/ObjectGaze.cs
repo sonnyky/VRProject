@@ -41,7 +41,6 @@ public class ObjectGaze : MonoBehaviour
     private float countdownToVoiceInput;
     private float waitTimeUntilVoiceInput = 2.0f;
     private bool moveCloserToObject;
-    private CardboardHead cardboardHead;
     private CameraMovement playerBody; //weird naming, but camera is effectively player's body
 
     //Unused right now
@@ -54,7 +53,6 @@ public class ObjectGaze : MonoBehaviour
         _speechManager.SetReceiver(gameObject);
         _isListening = false;
         moveCloserToObject = false;
-        cardboardHead = Camera.main.GetComponent<StereoController>().Head;
         playerBody =  GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
 
         markQuarternion = new Quaternion();
@@ -93,12 +91,6 @@ public class ObjectGaze : MonoBehaviour
             }
             
         }
-
-        Cardboard.SDK.UpdateState();
-        if (Cardboard.SDK.BackButtonPressed)
-        {
-            Application.Quit();
-        }
     }
 
     public void SetGazedAt(bool gazedAt)
@@ -127,11 +119,6 @@ public class ObjectGaze : MonoBehaviour
     public void Reset()
     {
         transform.localPosition = startingPosition;
-    }
-
-    public void ToggleVRMode()
-    {
-        Cardboard.SDK.VRModeEnabled = !Cardboard.SDK.VRModeEnabled;
     }
 
     public void TeleportRandomly()

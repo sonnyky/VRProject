@@ -34,7 +34,6 @@ public class ObjectPickUpGaze : MonoBehaviour
     private Vector3 deltaPos, scale;
 
     // Properties to handle user picking an object
-    private CardboardHead cardboardHead;
     private CameraMovement playerBody; //Class to interact with the player, calling methods in CameraMovement.cs
 
     //Unused right now
@@ -42,8 +41,6 @@ public class ObjectPickUpGaze : MonoBehaviour
 
     void Start()
     {
-        cardboardHead = Camera.main.GetComponent<StereoController>().Head;
-        playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
         scale = new Vector3(0.1f, 0.1f, 0.1f);
         markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
@@ -79,11 +76,6 @@ public class ObjectPickUpGaze : MonoBehaviour
 
         }
 
-        Cardboard.SDK.UpdateState();
-        if (Cardboard.SDK.BackButtonPressed)
-        {
-            Application.Quit();
-        }
     }
 
     public void SetGazedAt(bool gazedAt)
@@ -112,11 +104,6 @@ public class ObjectPickUpGaze : MonoBehaviour
     public void Reset()
     {
         transform.localPosition = startingPosition;
-    }
-
-    public void ToggleVRMode()
-    {
-        Cardboard.SDK.VRModeEnabled = !Cardboard.SDK.VRModeEnabled;
     }
 
     public void TeleportRandomly()

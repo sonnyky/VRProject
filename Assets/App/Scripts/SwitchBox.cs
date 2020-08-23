@@ -33,26 +33,18 @@ public class SwitchBox : MonoBehaviour
     private Vector3 deltaPos, scale;
 
     // Properties to handle user picking an object
-    private CardboardHead cardboardHead;
     private CameraMovement playerBody; //Class to interact with the player, calling methods in CameraMovement.cs
 
     //Unused right now
     private Quaternion markQuarternion;
 
     //Parameters to control the lights
-    public GameObject pointlightbedroom;
-    public GameObject spotlightbedroom;
-    public GameObject pointlightbedroomposter;
+    [SerializeField]
+    GameObject m_Lights;
+    
     void Start()
     {
         toggleBedroomLights(false);
-        cardboardHead = Camera.main.GetComponent<StereoController>().Head;
-        playerBody = GameObject.Find("CardboardMain").GetComponent<CameraMovement>();
-
-        pointlightbedroom.GetComponent<Light>().intensity = 0;
-        spotlightbedroom.GetComponent<Light>().intensity = 0;
-        pointlightbedroomposter.GetComponent<Light>().intensity = 0;
-
         scale = new Vector3(0.1f, 0.1f, 0.1f);
         markQuarternion = new Quaternion();
         startingPosition = transform.localPosition;
@@ -89,11 +81,7 @@ public class SwitchBox : MonoBehaviour
 
         }
 
-        Cardboard.SDK.UpdateState();
-        if (Cardboard.SDK.BackButtonPressed)
-        {
-            Application.Quit();
-        }
+       
     }
 
     public void SetGazedAt(bool gazedAt)
@@ -124,11 +112,6 @@ public class SwitchBox : MonoBehaviour
         transform.localPosition = startingPosition;
     }
 
-    public void ToggleVRMode()
-    {
-        Cardboard.SDK.VRModeEnabled = !Cardboard.SDK.VRModeEnabled;
-    }
-
     public void TeleportRandomly()
     {
         Vector3 direction = Random.onUnitSphere;
@@ -139,18 +122,6 @@ public class SwitchBox : MonoBehaviour
 
     void toggleBedroomLights(bool switchLights)
     {
-        if (switchLights)
-        {
-            pointlightbedroom.GetComponent<Light>().intensity = 0.5f;
-            spotlightbedroom.GetComponent<Light>().intensity = 0.5f;
-            pointlightbedroomposter.GetComponent<Light>().intensity = 0.5f;
-        }
-        else
-        {
-            pointlightbedroom.GetComponent<Light>().intensity = 0;
-            spotlightbedroom.GetComponent<Light>().intensity = 0;
-            pointlightbedroomposter.GetComponent<Light>().intensity = 0;
-
-        }
+      
     }
 }
